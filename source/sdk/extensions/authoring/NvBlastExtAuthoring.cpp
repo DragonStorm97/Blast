@@ -382,7 +382,7 @@ AuthoringResult* NvBlastExtAuthoringProcessFracture(FractureTool& fTool, BlastBo
     {
         uint32_t trianglesCount = aResult.geometryOffset[i + 1] - aResult.geometryOffset[i];
         memcpy(aResult.geometry + aResult.geometryOffset[i], chunkGeometry[i], trianglesCount * sizeof(Nv::Blast::Triangle));
-        delete chunkGeometry[i];
+        delete[] chunkGeometry[i];  // made with new Triangle[] by FractureToolImpl::getBaseMesh
         chunkGeometry[i] = nullptr;
     }
 
