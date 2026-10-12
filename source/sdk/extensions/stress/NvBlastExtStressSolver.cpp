@@ -1383,7 +1383,7 @@ bool ExtStressSolverImpl::getExcessForces(uint32_t actorIndex, const NvcVec3& co
             if (nvLinearPressure.magnitudeSquared() > FLT_EPSILON)
             {
                 const float* bondCenter = m_bonds[blastBondIndex].centroid;
-                const nvidia::NvVec3 forceOffset = nvidia::NvVec3(bondCenter[0], bondCenter[1], bondCenter[3]) - toNvShared(com);
+                const nvidia::NvVec3 forceOffset = nvidia::NvVec3(bondCenter[0], bondCenter[1], bondCenter[2]) - toNvShared(com);
                 const nvidia::NvVec3 torqueFromForce = forceOffset.cross(nvLinearPressure);
                 nvAngularPressure += torqueFromForce;
             }
