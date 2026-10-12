@@ -1363,7 +1363,7 @@ Mesh* BooleanToolImpl::performBoolean(const Mesh* meshA, SpatialAccelerator* acc
     }
 
     DummyAccelerator dmAccelA(meshA->getFacetCount());
-    DummyAccelerator dmAccelB(meshA->getFacetCount());
+    DummyAccelerator dmAccelB(meshB->getFacetCount());
 
     m_evaluator.performBoolean(meshA, meshB, accelA ? accelA : &dmAccelA, accelB ? accelB : &dmAccelB, modes[op]);
 
