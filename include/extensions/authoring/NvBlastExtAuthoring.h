@@ -121,7 +121,9 @@ NV_C_API Nv::Blast::CutoutSet* NvBlastExtAuthoringCreateCutoutSet();
 /**
 Builds a cutout set (which must have been initially created by createCutoutSet()).
 Uses a bitmap described by pixelBuffer, bufferWidth, and bufferHeight.  Each pixel is represented
-by one byte in the buffer.
+by three bytes in the buffer, red, green and blue, rows tightly packed: the buffer holds
+3 * bufferWidth * bufferHeight bytes.  A pixel is set where 0.3 R + 0.59 G + 0.11 B is 16 or more, so a one-channel
+mask is passed with each byte repeated three times.
 
 \param cutoutSet        the CutoutSet to build
 \param pixelBuffer      pointer to be beginning of the pixel buffer
