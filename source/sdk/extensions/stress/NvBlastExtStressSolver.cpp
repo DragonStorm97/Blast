@@ -1179,7 +1179,7 @@ NV_INLINE T* ExtStressSolverImpl::getScratchArray(uint32_t size)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ExtStressSolverImpl::ExtStressSolverImpl(const NvBlastFamily& family, const ExtStressSolverSettings& settings)
-    : m_family(family), m_settings(settings), m_isDirty(false), m_reset(false),
+    : m_family(family), m_settings(settings), m_isDirty(false), m_reset(false), m_graphProcessor(nullptr),
     m_errorAngular(std::numeric_limits<float>::max()), m_errorLinear(std::numeric_limits<float>::max()),
     m_converged(false), m_framesCount(0), m_valid(false)
 {
@@ -1199,8 +1199,13 @@ ExtStressSolverImpl::ExtStressSolverImpl(const NvBlastFamily& family, const ExtS
     m_bondFractureBuffer.reserve(bondCount);
 
     {
-        NvBlastActor* actor;
-        NvBlastFamilyGetActors(&actor, 1, &family, logLL);
+        // The bond healths are read from the family's first actor: a family with none left has nothing to solve.
+        NvBlastActor* actor = nullptr;
+        if (NvBlastFamilyGetActors(&actor, 1, &family, logLL) == 0 || actor == nullptr)
+        {
+            NVBLAST_LOG_ERROR("ExtStressSolverImpl::ExtStressSolverImpl: family has no actors");
+            return;
+        }
         m_bondHealths = NvBlastActorGetBondHealths(actor, logLL);
         m_cachedBondHealths = NvBlastActorGetCachedBondHeaths(actor, logLL);
         m_bonds = NvBlastAssetGetBonds(asset, logLL);
