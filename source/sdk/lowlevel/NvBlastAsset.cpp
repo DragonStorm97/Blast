@@ -236,6 +236,17 @@ true if the descriptors imply a valid trees, false otherwise.
 */
 static bool testForValidTrees(uint32_t chunkCount, const NvBlastChunkDesc* chunkDescs, NvBlastLog logFn)
 {
+    // Ensure every parent index names a chunk, before any walk below follows one
+    for (uint32_t i = 0; i < chunkCount; ++i)
+    {
+        const uint32_t parentIndex = chunkDescs[i].parentChunkDescIndex;
+        if (!isInvalidIndex(parentIndex) && parentIndex >= chunkCount)
+        {
+            NVBLASTLL_LOG_ERROR(logFn, "testForValidTrees: parent chunk index out of range.  Asset will not be created.");
+            return false;
+        }
+    }
+
     for (uint32_t i = 0; i < chunkCount; ++i)
     {
         // Ensure there are no loops
@@ -667,6 +678,27 @@ bool Asset::ensureExactSupportCoverage(uint32_t& supportChunkCount, uint32_t& le
 {
     // Clear leafChunkCount
     leafChunkCount = 0;
+
+    // Every walk below follows parent indices to a root: refuse one past the end, and a chain that never ends.  A chain
+    // from a chunk holds at most chunkCount - 1 parents, so one longer than that has a loop.
+    for (uint32_t i = 0; i < chunkCount; ++i)
+    {
+        uint32_t chunkDescIndex = i;
+        uint32_t parentCount = 0;
+        while (!isInvalidIndex(chunkDescIndex = chunkDescs[chunkDescIndex].parentChunkDescIndex))
+        {
+            if (chunkDescIndex >= chunkCount)
+            {
+                NVBLASTLL_LOG_ERROR(logFn, "ensureExactSupportCoverage: parent chunk index out of range.");
+                return false;
+            }
+            if (++parentCount >= chunkCount)
+            {
+                NVBLASTLL_LOG_ERROR(logFn, "ensureExactSupportCoverage: loop found in chunk parents.");
+                return false;
+            }
+        }
+    }
 
     memset(chunkAnnotation, 0, chunkCount);
 
